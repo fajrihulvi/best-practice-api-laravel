@@ -47,9 +47,9 @@ class Article extends Model
         return Article::create($data);
     }
 
-    public static function updateArticle($data)
+    public static function updateArticle($data, $id)
     {
-        return Article::update($data);
+        return Article::find($id)->update($data);
     }
 
     public static function deleteArticleByID($id)

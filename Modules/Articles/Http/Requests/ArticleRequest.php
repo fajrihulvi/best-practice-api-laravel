@@ -7,20 +7,6 @@ use Illuminate\Foundation\Http\FormRequest;
 class ArticleRequest extends FormRequest
 {
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
-    {
-        return [
-            'title' => 'required',
-            'body'  => 'required',
-            'file'  => 'required'
-        ];
-    }
-
-    /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
@@ -30,12 +16,42 @@ class ArticleRequest extends FormRequest
         return true;
     }
 
-    public function messages()
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules(): array
     {
-        return [
-            'title.required'    => 'Judul tidak boleh kosong',
-            'body.required'     => 'Isi tidak boleh kosong',
-            'file.required'     => 'File tidak boleh kosong',
+        $rules =  [
+            'title' => 'required',
+            'body'  => 'required',
+            'file' => 'required',
         ];
+
+        return $rules;
     }
+
+    public function messages(): array
+    {
+        $messages =  [
+            'title.required'    => 'Judul Artikel tidak boleh kosong',
+            'body.required'     => 'Isi Artikel tidak boleh kosong',
+            'file.required'     => 'Upload File tidak boleh kosong',
+        ];
+
+        return $messages;
+    }
+
+    public function attributes(): array
+    {
+        $attributes = [
+            'title' => 'Judul Artikel',
+            'body' => 'Body Artikel',
+            'file' => 'Upload File',
+        ];
+
+        return $attributes;
+    }
+
 }

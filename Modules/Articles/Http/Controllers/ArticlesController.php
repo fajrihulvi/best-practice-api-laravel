@@ -27,11 +27,6 @@ class ArticlesController extends Controller
         }
     }
 
-    public function create()
-    {
-       
-    }
-
     /**
      * Store a newly created resource in storage.
      * @param Request $request
@@ -39,6 +34,7 @@ class ArticlesController extends Controller
      */
     public function store(ArticleRequest $request)
     {
+
         try {
             $image = $request->validated('file');
             $filename = $image->hashName();
@@ -86,7 +82,6 @@ class ArticlesController extends Controller
      */
     public function update(ArticleRequest $request, $id)
     {
-        $data = Article::find($id);
         try {
             if ($request->hasFile('file')) {
                 $image = $request->validated('file');
@@ -107,7 +102,7 @@ class ArticlesController extends Controller
                 ];
             }
 
-            $updated = Article::updateArticle($data);
+            $updated = Article::updateArticle($data, $id);
 
             if($updated){
                 $data = new ArticleResource(true,'Updated Successfully', $data);
@@ -117,7 +112,6 @@ class ArticlesController extends Controller
             return $data;
         } catch (\Throwable $e) {
             return response()->json($e->getMessage(), 400);
-
         }
     }
 
