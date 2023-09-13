@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use Modules\Articles\Entities\Article;
 use Modules\Articles\Transformers\ArticleResource;
 use Modules\Articles\Http\Requests\ArticleRequest;
-use Illuminate\Support\Facades\Storage;
+use Modules\Articles\Service\ArticleService;
 
 class ArticlesController extends Controller
 {
@@ -16,6 +16,14 @@ class ArticlesController extends Controller
      * Display a listing of the resource.
      * @return Renderable
      */
+
+     protected $articleService;
+
+     public function __construct(ArticleService $articleService)
+     {
+         $this->articleService = $articleService;
+     }
+
     public function index()
     {
         try {
@@ -34,24 +42,14 @@ class ArticlesController extends Controller
      */
     public function store(ArticleRequest $request)
     {
-
         try {
-            $image = $request->validated('file');
-            $filename = $image->hashName();
-            $image->storeAs('public/articles', $filename);
-            
-            $data  = [
-                'file'     => asset('/public/storage/articles/'.$filename),
-                'title'    => $request->validated('title'),
-                'body'     => $request->validated('body'),
-            ];
 
-            $created = Article::createArticle($data);
+            $result = $this->articleService->add($request);
 
-            if($created){
-                $data = new ArticleResource(true,'Created Successfully', $data);
+            if($result){
+                $data = new ArticleResource(true,'Created Successfully', $result);
             } else{
-                $data = new ArticleResource(true,'Was not created Successfully', $data);
+                $data = new ArticleResource(true,'Was not created Successfully', $result);
             }
             return $data;
         } catch (\Throwable $e) {
@@ -83,31 +81,13 @@ class ArticlesController extends Controller
     public function update(ArticleRequest $request, $id)
     {
         try {
-            if ($request->hasFile('file')) {
-                $image = $request->validated('file');
-                $filename = $image->hashName();
-                $image->storeAs('public/articles', $filename);
 
-                Storage::delete('public/articles/'.$filename);
+            $result = $this->articleService->update($request, $id);
 
-                $data  = [
-                    'file'     => asset('/public/storage/articles/'.$filename),
-                    'title'    => $request->validated('title'),
-                    'body'     => $request->validated('body'),
-                ];
-            } else {
-                $data  = [
-                    'title'    => $request->validated('title'),
-                    'body'     => $request->validated('body'),
-                ];
-            }
-
-            $updated = Article::updateArticle($data, $id);
-
-            if($updated){
-                $data = new ArticleResource(true,'Updated Successfully', $data);
+            if($result){
+                $data = new ArticleResource(true,'Updated Successfully', $result);
             } else{
-                $data = new ArticleResource(true,'Was not updated Successfully', $data);
+                $data = new ArticleResource(true,'Was not updated Successfully', $result);
             }
             return $data;
         } catch (\Throwable $e) {
@@ -123,11 +103,14 @@ class ArticlesController extends Controller
     public function destroy($id)
     {
         try {
-            $delete = Article::getArticleByID($id);
+            $data = Article::getArticleByID($id);
+            
+            $delete = $this->articleService->delete($id);
+
             if($delete){
-                $data = new ArticleResource(true,'Deleted Successfully', []);
+                $data = new ArticleResource(true,'Deleted Successfully', $data);
             } else {
-                $data = new ArticleResource(true,'Was not deleted Successfully', []);
+                $data = new ArticleResource(true,'Was not deleted Successfully', $data);
             }
             return $data;
         } catch (\Throwable $e) {

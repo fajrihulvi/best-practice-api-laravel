@@ -12,7 +12,6 @@ use Modules\Articles\Http\Controllers\ArticlesController;
 |
 */
 
-Route::prefix('api')->group(function() {
-    Route::apiResource('/articles', ArticlesController::class)->except('update');
-    Route::post('/articles/{id}',[ArticlesController::class, 'update']);
+Route::prefix('api')->middleware('auth:api')->group(function() {
+    Route::apiResource('/articles', ArticlesController::class);
 });

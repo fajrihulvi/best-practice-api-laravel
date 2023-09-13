@@ -25,13 +25,6 @@ class Article extends Model
         return \Modules\Articles\Database\factories\ArticleFactory::new();
     }
 
-    protected function file(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($file) => asset('/public/storage/articles/' . $file),
-        );
-    }
-
     public static function getArticle()
     {
         return Article::paginate(10);

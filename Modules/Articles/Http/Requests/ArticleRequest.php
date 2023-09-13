@@ -2,7 +2,9 @@
 
 namespace Modules\Articles\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Validator;
+use App\Http\FormRequest;
 
 class ArticleRequest extends FormRequest
 {
@@ -24,9 +26,9 @@ class ArticleRequest extends FormRequest
     public function rules(): array
     {
         $rules =  [
-            'title' => 'required',
-            'body'  => 'required',
-            'file' => 'required',
+            'title' => 'required|string|max:100',
+            'body'  => 'required|string',
+            'file' => 'required'
         ];
 
         return $rules;
@@ -37,21 +39,18 @@ class ArticleRequest extends FormRequest
         $messages =  [
             'title.required'    => 'Judul Artikel tidak boleh kosong',
             'body.required'     => 'Isi Artikel tidak boleh kosong',
-            'file.required'     => 'Upload File tidak boleh kosong',
+            'file.required'     => 'Upload File tidak boleh kosong'
         ];
 
         return $messages;
     }
 
-    public function attributes(): array
+    public function failed(Validator $validator): array
     {
-        $attributes = [
-            'title' => 'Judul Artikel',
-            'body' => 'Body Artikel',
-            'file' => 'Upload File',
-        ];
-
-        return $attributes;
+        throw new HttpResponseException(response()->json([
+            'success'   => false,
+            'message'   => 'Validation errors',
+            'data'      => $validator->errors()
+        ]));
     }
-
 }
